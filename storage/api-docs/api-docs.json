@@ -1,0 +1,793 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Dokumentasi API E-Commerce UAS",
+        "description": "Dokumentasi lengkap API untuk integrasi Frontend Mobile (Flutter).",
+        "contact": {
+            "email": "hifadlibilal@sistekin.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register User Baru",
+                "description": "User wajib mengirimkan location_id yang didapat dari endpoint /locations",
+                "operationId": "0903f2e0df1a8857bee538fc055417f0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "role",
+                                    "location_id",
+                                    "location_label"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "budi@test.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "buyer",
+                                            "seller"
+                                        ],
+                                        "example": "buyer"
+                                    },
+                                    "location_id": {
+                                        "description": "ID Lokasi dari RajaOngkir/Komerce",
+                                        "type": "integer",
+                                        "example": 69335
+                                    },
+                                    "location_label": {
+                                        "description": "Label lokasi lengkap",
+                                        "type": "string",
+                                        "example": "TAMBAKSARI, SURABAYA, JAWA TIMUR"
+                                    },
+                                    "full_address": {
+                                        "description": "Alamat detail (Jalan/Nomor Rumah)",
+                                        "type": "string",
+                                        "example": "Jl. Kenari No. 5, RT 01 RW 02"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Register Berhasil"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login User",
+                "operationId": "2dd578ff7aba2721293dac66833b27d1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "buyer@test.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login Berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "1|AbCdEfGh..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "data": {
+                                            "description": "Data User",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Email/Password Salah"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout User",
+                "operationId": "68a6108af04af5e3bc1ea68a6c6f1299",
+                "responses": {
+                    "200": {
+                        "description": "Logout Berhasil"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/cart": {
+            "get": {
+                "tags": [
+                    "Cart (Buyer)"
+                ],
+                "summary": "Lihat Keranjang Belanja",
+                "operationId": "294e093bf29c111c01d8402121fb4f43",
+                "responses": {
+                    "200": {
+                        "description": "Detail Keranjang",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "ID Cart Item",
+                                                                "type": "integer"
+                                                            },
+                                                            "quantity": {
+                                                                "type": "integer"
+                                                            },
+                                                            "product": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "price": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "stock": {
+                                                                        "description": "Sisa stok saat ini",
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "image": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Cart (Buyer)"
+                ],
+                "summary": "Tambah Barang ke Keranjang",
+                "operationId": "17edc07162b12ee962c37746abcf34a5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil masuk keranjang"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/cart/item/{itemId}": {
+            "put": {
+                "tags": [
+                    "Cart (Buyer)"
+                ],
+                "summary": "Update Qty (+/-)",
+                "operationId": "7f3fa964fa61418b0cdf813c3647415a",
+                "parameters": [
+                    {
+                        "name": "itemId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 3
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Qty berhasil diupdate"
+                    },
+                    "400": {
+                        "description": "Stok tidak mencukupi"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Cart (Buyer)"
+                ],
+                "summary": "Hapus Item dari Keranjang",
+                "operationId": "40390fca795c3602b781a99fe66ec926",
+                "parameters": [
+                    {
+                        "name": "itemId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/checkout": {
+            "post": {
+                "tags": [
+                    "Order & Payment"
+                ],
+                "summary": "Checkout (Buat Invoice Xendit)",
+                "operationId": "6ed91804beb738578b8d4c98f822dbbf",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "shipping_service": {
+                                        "type": "string",
+                                        "example": "REG"
+                                    },
+                                    "shipping_cost": {
+                                        "type": "integer",
+                                        "example": 20000
+                                    },
+                                    "courier": {
+                                        "type": "string",
+                                        "example": "jne"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sukses, dapat Link Payment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "payment_url": {
+                                            "type": "string",
+                                            "example": "https://checkout-staging.xendit.co/..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/orders": {
+            "get": {
+                "tags": [
+                    "Order & Payment"
+                ],
+                "summary": "History Order Saya",
+                "operationId": "325fd3d55bbe9bb39645269928fa4983",
+                "responses": {
+                    "200": {
+                        "description": "List History Order"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/products": {
+            "get": {
+                "tags": [
+                    "Products (Public)"
+                ],
+                "summary": "Lihat Semua Produk (Untuk Home Buyer)",
+                "description": "Menampilkan semua produk terbaru beserta data Sellernya.",
+                "operationId": "c1ff6f862214e1896c59cfe0491ce0e8",
+                "responses": {
+                    "200": {
+                        "description": "List Semua Produk",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "price": {
+                                                        "type": "integer"
+                                                    },
+                                                    "image": {
+                                                        "description": "Path gambar (tambahkan base_url/storage/ di frontend)",
+                                                        "type": "string"
+                                                    },
+                                                    "seller": {
+                                                        "properties": {
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Products (Seller)"
+                ],
+                "summary": "Tambah Produk Baru",
+                "operationId": "399770d33fa4672f1216707d0e236763",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Laptop Gaming"
+                                    },
+                                    "price": {
+                                        "type": "integer",
+                                        "example": 15000000
+                                    },
+                                    "weight": {
+                                        "description": "Berat dalam Gram (Penting buat Ongkir)",
+                                        "type": "integer",
+                                        "example": 2000
+                                    },
+                                    "stock": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Laptop spek dewa"
+                                    },
+                                    "image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Produk Berhasil Dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/seller/products": {
+            "get": {
+                "tags": [
+                    "Products (Seller)"
+                ],
+                "summary": "Lihat Produk Saya (Manage Produk)",
+                "operationId": "308af00e08471dcd0b5381d8400c1e8d",
+                "responses": {
+                    "200": {
+                        "description": "List Produk milik Seller yang sedang login"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/products/{id}": {
+            "post": {
+                "tags": [
+                    "Products (Seller)"
+                ],
+                "summary": "Update Produk (Termasuk Gambar)",
+                "description": "Gunakan method POST dengan body _method=PUT agar bisa upload file di Laravel",
+                "operationId": "1c52fc58e33d71677ba74cb346470913",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "_method": {
+                                        "description": "Wajib diisi PUT",
+                                        "type": "string",
+                                        "example": "PUT"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "price": {
+                                        "type": "integer"
+                                    },
+                                    "weight": {
+                                        "type": "integer"
+                                    },
+                                    "stock": {
+                                        "type": "integer"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Produk Berhasil Diupdate"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Products (Seller)"
+                ],
+                "summary": "Hapus Produk",
+                "operationId": "fe34b364a3f192305598b65d04d06b5d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produk Berhasil Dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/locations": {
+            "get": {
+                "tags": [
+                    "RajaOngkir"
+                ],
+                "summary": "Cari Lokasi (Autocomplete)",
+                "description": "Endpoint untuk fitur pencarian alamat di Frontend. Ketik nama kecamatan/kota, sistem akan mengembalikan list lokasi beserta ID-nya.",
+                "operationId": "c5cb78f8a74ec44be7aa32ef0c88f24e",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Minimal 3 karakter. Contoh: 'Gubeng'",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Gubeng"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data lokasi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "description": "SIMPAN ID INI untuk Register",
+                                                "type": "integer",
+                                                "example": 69335
+                                            },
+                                            "label": {
+                                                "type": "string",
+                                                "example": "TAMBAKSARI, SURABAYA, JAWA TIMUR..."
+                                            },
+                                            "city_name": {
+                                                "type": "string",
+                                                "example": "SURABAYA"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi Gagal (Search kurang dari 3 huruf)"
+                    }
+                }
+            }
+        },
+        "/check-ongkir": {
+            "post": {
+                "tags": [
+                    "RajaOngkir"
+                ],
+                "summary": "Cek Biaya Ongkir (Untuk Menu Pilihan Kurir)",
+                "description": "Frontend mengirim Origin (Lokasi Seller), Destination (Lokasi Buyer), Berat, dan Kurir. API akan mengembalikan daftar layanan (REG, BEST, YES) beserta harganya.",
+                "operationId": "824c45374773dc69cebd988d456a8e6c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "origin": {
+                                        "description": "ID Lokasi Pengirim (Seller)",
+                                        "type": "integer",
+                                        "example": 444
+                                    },
+                                    "destination": {
+                                        "description": "ID Lokasi Penerima (User yang sedang login)",
+                                        "type": "integer",
+                                        "example": 69335
+                                    },
+                                    "weight": {
+                                        "description": "Berat dalam Gram",
+                                        "type": "integer",
+                                        "example": 1000
+                                    },
+                                    "courier": {
+                                        "description": "Kode kurir: jne, sicepat, pos, jnt",
+                                        "type": "string",
+                                        "example": "jne"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List opsi pengiriman berhasil didapat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Masukkan Token Bearer di sini untuk mengakses endpoint yang dilindungi.",
+                "name": "Authorization",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "Cart (Buyer)",
+            "description": "Cart (Buyer)"
+        },
+        {
+            "name": "Order & Payment",
+            "description": "Order & Payment"
+        },
+        {
+            "name": "Products (Public)",
+            "description": "Products (Public)"
+        },
+        {
+            "name": "Products (Seller)",
+            "description": "Products (Seller)"
+        },
+        {
+            "name": "RajaOngkir",
+            "description": "RajaOngkir"
+        }
+    ]
+}
