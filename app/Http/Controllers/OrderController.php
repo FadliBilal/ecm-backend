@@ -75,27 +75,47 @@ class OrderController extends Controller
                 'xendit_invoice_url' => null, // Nanti diisi
             ]);
 
-            // 4. Pindahkan Item Keranjang ke Order Item
+            // 4. Pindahkan Item Keranjang ke Order Item & SIAPKAN ITEM XENDIT
+            $xenditItems = []; // Array untuk dikirim ke Xendit
+
             foreach ($cart->items as $item) {
+                // Simpan ke Database
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
-                    'price' => $item->product->price, // Harga saat checkout
+                    'price' => $item->product->price, 
                 ]);
+
+                // Masukkan ke Array Xendit
+                $xenditItems[] = [
+                    'name' => $item->product->name,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->price,
+                    'category' => 'Product'
+                ];
             }
 
-            // 5. Panggil Xendit
-            // External ID harus unik, kita pakai "ORDER-ID-TIMESTAMP"
+            // 5. Tambahkan Ongkir sebagai Item Xendit (Agar muncul di Invoice)
+            $xenditItems[] = [
+                'name' => 'Ongkir (' . strtoupper($request->courier) . ' - ' . $request->shipping_service . ')',
+                'quantity' => 1,
+                'price' => $request->shipping_cost,
+                'category' => 'Shipping'
+            ];
+
+            // 6. Panggil Xendit
             $externalId = 'ORDER-' . $order->id . '-' . time();
             $description = "Pembayaran Order #" . $order->id;
 
             try {
+                // Panggil Service dengan parameter ke-5 ($xenditItems)
                 $xenditResponse = $xenditService->createInvoice(
                     $externalId,
                     $grandTotal,
                     $user->email,
-                    $description
+                    $description,
+                    $xenditItems // <--- LOGIC BARU DISINI
                 );
 
                 // Update Order dengan data Xendit
@@ -105,11 +125,11 @@ class OrderController extends Controller
                 ]);
 
             } catch (\Exception $e) {
-                // Jika Xendit error, return error (DB Transaction akan rollback otomatis karena throw exception)
+                // Jika Xendit error, return error (DB Transaction rollback otomatis)
                 throw new \Exception("Gagal membuat invoice Xendit: " . $e->getMessage());
             }
 
-            // 6. Kosongkan Keranjang
+            // 7. Kosongkan Keranjang
             $cart->items()->delete();
 
             return response()->json([

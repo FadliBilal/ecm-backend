@@ -13,17 +13,18 @@ class XenditService
         $this->secretKey = env('XENDIT_SECRET_KEY');
     }
 
-    public function createInvoice($externalId, $amount, $payerEmail, $description)
+    public function createInvoice($externalId, $amount, $payerEmail, $description, $items = [])
     {
         // Xendit butuh Auth Basic (Username=SecretKey, Password=Kosong)
         $response = Http::withBasicAuth($this->secretKey, '')
             ->post('https://api.xendit.co/v2/invoices', [
                 'external_id' => $externalId,
-                'amount' => (int) $amount, // Pastikan integer
+                'amount' => (int) $amount,
                 'payer_email' => $payerEmail,
                 'description' => $description,
-                'invoice_duration' => 86400, // 24 jam
-                'currency' => 'IDR'
+                'invoice_duration' => 86400,
+                'currency' => 'IDR',
+                'items' => $items 
             ]);
 
         if ($response->failed()) {
