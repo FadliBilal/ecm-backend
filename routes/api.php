@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\RajaOngkirController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\WebhookController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -14,6 +15,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/locations', [RajaOngkirController::class, 'searchLocation']); 
 
 Route::get('/products', [ProductController::class, 'index']);
+Route::post('/webhooks/xendit', [WebhookController::class, 'handle']);
 
 // PROTECTED ROUTES (Harus Login / Punya Token)
 Route::middleware('auth:sanctum')->group(function () {
