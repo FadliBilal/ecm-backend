@@ -33,4 +33,17 @@ class XenditService
 
         return $response->json();
     }
+
+    public function getInvoice($invoiceId)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic ' . base64_encode($this->secretKey . ':')
+            ])->get('https://api.xendit.co/v2/invoices/' . $invoiceId);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            throw new \Exception("Gagal cek status Xendit: " . $e->getMessage());
+        }
+    }
 }

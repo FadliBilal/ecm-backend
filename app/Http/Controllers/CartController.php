@@ -69,7 +69,7 @@ class CartController extends Controller
         // Ambil atau buat keranjang
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
 
-        // Cek stok produk (Opsional tapi bagus)
+        // Cek stok produk sebelum ditambahkan
         $product = Product::find($request->product_id);
         if($product->stock < $request->quantity) {
              return response()->json(['message' => 'Stok tidak cukup'], 400);

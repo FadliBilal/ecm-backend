@@ -351,47 +351,27 @@
                 ]
             }
         },
-        "/checkout": {
-            "post": {
+        "/orders": {
+            "get": {
                 "tags": [
                     "Order & Payment"
                 ],
-                "summary": "Checkout (Buat Invoice Xendit)",
-                "operationId": "6ed91804beb738578b8d4c98f822dbbf",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "shipping_service": {
-                                        "type": "string",
-                                        "example": "REG"
-                                    },
-                                    "shipping_cost": {
-                                        "type": "integer",
-                                        "example": 20000
-                                    },
-                                    "courier": {
-                                        "type": "string",
-                                        "example": "jne"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
+                "summary": "List History Order",
+                "description": "Mendapatkan daftar riwayat pesanan user yang sedang login",
+                "operationId": "325fd3d55bbe9bb39645269928fa4983",
                 "responses": {
                     "200": {
-                        "description": "Sukses, dapat Link Payment",
+                        "description": "Berhasil mendapatkan data",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "payment_url": {
-                                            "type": "string",
-                                            "example": "https://checkout-staging.xendit.co/..."
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "description": "Order Data",
+                                                "type": "object"
+                                            }
                                         }
                                     },
                                     "type": "object"
@@ -405,18 +385,122 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/orders": {
-            "get": {
+            },
+            "post": {
                 "tags": [
                     "Order & Payment"
                 ],
-                "summary": "History Order Saya",
-                "operationId": "325fd3d55bbe9bb39645269928fa4983",
+                "summary": "Buat Order Baru (Checkout)",
+                "description": "Mengubah keranjang menjadi order dan membuat invoice Xendit",
+                "operationId": "445bab4f7dc9ea6fcd54f286c0209478",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "shipping_service",
+                                    "shipping_cost",
+                                    "courier"
+                                ],
+                                "properties": {
+                                    "shipping_service": {
+                                        "description": "Layanan pengiriman (REG, YES, OKE)",
+                                        "type": "string",
+                                        "example": "REG"
+                                    },
+                                    "shipping_cost": {
+                                        "description": "Biaya ongkir dalam Rupiah",
+                                        "type": "integer",
+                                        "example": 20000
+                                    },
+                                    "courier": {
+                                        "description": "Kode kurir (jne, pos, tiki)",
+                                        "type": "string",
+                                        "example": "jne"
+                                    },
+                                    "address": {
+                                        "description": "Alamat pengiriman (Opsional, jika null ambil dari profil)",
+                                        "type": "string",
+                                        "example": "Jl. Mulyorejo No. 10, Surabaya"
+                                    },
+                                    "phone": {
+                                        "description": "No HP penerima (Opsional)",
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "notes": {
+                                        "description": "Catatan pesanan (Opsional)",
+                                        "type": "string",
+                                        "example": "Tolong packing kayu"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
-                    "200": {
-                        "description": "List History Order"
+                    "201": {
+                        "description": "Order Berhasil Dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Order berhasil dibuat"
+                                        },
+                                        "data": {
+                                            "description": "Detail Order Object",
+                                            "type": "object"
+                                        },
+                                        "payment_url": {
+                                            "description": "Link pembayaran Xendit",
+                                            "type": "string",
+                                            "example": "https://checkout-staging.xendit.co/web/606..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validasi Gagal atau Keranjang Kosong",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Keranjang kosong"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error (Gagal membuat invoice)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Gagal membuat order"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Xendit Error..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -750,6 +834,21 @@
                     }
                 ]
             }
+        },
+        "/webhooks/xendit": {
+            "post": {
+                "tags": [
+                    "Webhook"
+                ],
+                "summary": "Menerima Callback dari Xendit (Otomatis)",
+                "description": "Endpoint ini dipanggil oleh server Xendit, bukan oleh Frontend Flutter",
+                "operationId": "e1ca57101785fdb5b81e219b8958f5ab",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -766,16 +865,16 @@
     },
     "tags": [
         {
+            "name": "Order & Payment",
+            "description": "API untuk Checkout, Order, dan Payment Gateway"
+        },
+        {
             "name": "Authentication",
             "description": "Authentication"
         },
         {
             "name": "Cart (Buyer)",
             "description": "Cart (Buyer)"
-        },
-        {
-            "name": "Order & Payment",
-            "description": "Order & Payment"
         },
         {
             "name": "Products (Public)",
@@ -788,6 +887,10 @@
         {
             "name": "RajaOngkir",
             "description": "RajaOngkir"
+        },
+        {
+            "name": "Webhook",
+            "description": "Webhook"
         }
     ]
 }

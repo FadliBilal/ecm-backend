@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    // Product (Seller Only - Logic cek role ada di Controller)
+    // Product (Seller Only)
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
@@ -38,11 +38,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/item/{itemId}', [CartController::class, 'update']);
     Route::delete('/cart/item/{itemId}', [CartController::class, 'destroy']);
 
-    // RajaOngkir (Perlu login karena butuh data user/kota)
+    // RajaOngkir
     Route::post('/check-ongkir', [RajaOngkirController::class, 'checkOngkir']);
 
     // Order & Checkout
     Route::post('/checkout', [OrderController::class, 'checkout']);
     Route::get('/orders', [OrderController::class, 'index']);
+    Route::post('/orders', [OrderController::class, 'store']);
 
 });

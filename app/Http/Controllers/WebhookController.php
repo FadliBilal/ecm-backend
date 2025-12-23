@@ -20,7 +20,7 @@ class WebhookController extends Controller
      */
     public function handle(Request $request)
     {
-        // 1. Verifikasi Token Xendit (Keamanan) - Opsional buat Localhost, Wajib buat Production
+        // 1. Verifikasi Token Xendit (Security) - Opsional buat Localhost, Wajib buat Production
         // $xenditCallbackToken = env('XENDIT_CALLBACK_TOKEN');
         // if ($request->header('x-callback-token') !== $xenditCallbackToken) {
         //     return response()->json(['message' => 'Invalid Token'], 403);
@@ -34,7 +34,7 @@ class WebhookController extends Controller
             return response()->json(['message' => 'Invalid Data'], 400);
         }
 
-        // Format External ID kita tadi: "ORDER-1-12345678"
+        // Format External ID: "ORDER-1-12345678"
         // Kita butuh ambil ID Ordernya saja (angka "1")
         $externalIdParts = explode('-', $data['external_id']);
         $orderId = $externalIdParts[1]; // Ambil bagian tengah
@@ -52,7 +52,7 @@ class WebhookController extends Controller
                 // A. Update Status Order
                 $order->update(['status' => 'PAID']);
 
-                // B. POTONG STOK (Logic Revisi Kamu)
+                // B. POTONG STOK
                 foreach ($order->items as $item) {
                     $product = Product::find($item->product_id);
                     if ($product) {

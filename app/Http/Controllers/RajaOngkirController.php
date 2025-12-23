@@ -77,7 +77,6 @@ class RajaOngkirController extends Controller
      */
     public function checkOngkir(Request $request)
     {
-        // VALIDASI LEBIH KETAT
         $request->validate([
             'origin' => 'required|integer',      
             'destination' => 'required|integer', 

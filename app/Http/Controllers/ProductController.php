@@ -31,7 +31,6 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // Eager Load 'seller' biar query database ringan (Clean Code: N+1 Problem solved)
         $products = Product::with('seller:id,name,location_label')->latest()->get();
         return response()->json(['data' => $products]);
     }
@@ -68,7 +67,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'price' => 'required|numeric',
-            'weight' => 'required|integer', // Gram
+            'weight' => 'required|integer', 
             'stock' => 'required|integer',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -138,34 +137,44 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
+        // 1. Cari Produk berdasarkan ID
+        $product = Product::find($id);
 
-        if ($request->user()->id !== $product->seller_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        // 2. Cek apakah produk ada?
+        if (!$product) {
+            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
         }
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string',
-            'price' => 'sometimes|numeric',
-            'weight' => 'sometimes|integer',
-            'stock' => 'sometimes|integer',
+        // 3. Cek Kepemilikan (PENTING!)
+        // Jangan sampai Seller A mengedit produk Seller B
+        if ($product->seller_id !== $request->user()->id) {
+            return response()->json(['message' => 'Anda tidak berhak mengedit produk ini'], 403);
+        }
+
+        // 4. Validasi Input (Hanya validasi yg dikirim saja)
+        $request->validate([
+            'name'        => 'nullable|string',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'price'       => 'nullable|integer',
+            'stock'       => 'nullable|integer|min:0', // <--- INI BUAT RESTOCK
+            'weight'      => 'nullable|integer',
+            // 'image'    => 'nullable|image' (Nanti dulu biar simpel)
         ]);
 
-        // LOGIC UPDATE GAMBAR (PENTING!)
-        if ($request->hasFile('image')) {
-            // 1. Hapus gambar lama biar server ga penuh
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
-            // 2. Upload gambar baru
-            $validated['image'] = $request->file('image')->store('products', 'public');
-        }
+        // 5. Update Data
+        // Kita gunakan logic: Kalau ada input baru, update. Kalau tidak, pakai data lama.
+        $product->update([
+            'name'        => $request->name ?? $product->name,
+            'description' => $request->description ?? $product->description,
+            'price'       => $request->price ?? $product->price,
+            'stock'       => $request->stock ?? $product->stock, 
+            'weight'      => $request->weight ?? $product->weight,
+        ]);
 
-        $product->update($validated);
-
-        return response()->json(['message' => 'Produk diupdate', 'data' => $product]);
+        return response()->json([
+            'message' => 'Produk berhasil diupdate',
+            'data'    => $product
+        ]);
     }
 
     /**
@@ -186,7 +195,6 @@ class ProductController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        // Hapus gambar fisik di storage (Clean Code)
         if ($product->image && Storage::disk('public')->exists($product->image)) {
             Storage::disk('public')->delete($product->image);
         }
