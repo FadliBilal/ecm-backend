@@ -22,9 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', function (Request $request) {return $request->user();});
+    Route::put('/profile/update', [AuthController::class, 'updateProfile']);
 
     // Product (Seller Only)
     Route::post('/products', [ProductController::class, 'store']);

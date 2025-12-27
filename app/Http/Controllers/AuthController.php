@@ -108,6 +108,32 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
         ]);
     }
+    
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string',
+            'location_id' => 'required|integer',
+            'location_label' => 'required|string',
+            'full_address' => 'required|string',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'location_id' => $request->location_id,
+            'location_label' => $request->location_label,
+            'full_address' => $request->full_address,
+        ]);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user
+        ]);
+    }
 
     /**
      * @OA\Post(
