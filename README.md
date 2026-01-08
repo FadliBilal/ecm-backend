@@ -50,24 +50,6 @@ routes/
 
 ---
 
-## 🔐 Autentikasi
-
-* Login & Register menggunakan **Bearer Token**
-* Token dihasilkan oleh backend
-* Semua endpoint penting menggunakan middleware:
-
-```
-auth:sanctum
-```
-
-Contoh Header Request:
-
-```
-Authorization: Bearer {token}
-```
-
----
-
 ## 🛍️ Fitur Utama Backend
 
 ### 1️⃣ Authentication
@@ -179,7 +161,7 @@ API Key Xendit disimpan di `.env`
 ### 1️⃣ Clone Repository
 
 ```
-git clone https://github.com/username/tukuo-backend.git
+git clone https://github.com/FadliBilal/ecm-backend.git
 cd tukuo-backend
 ```
 
