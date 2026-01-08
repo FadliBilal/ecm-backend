@@ -207,7 +207,7 @@ Isi konfigurasi penting:
 ### 4️⃣ Migration Database
 
 ```
-php artisan migrate --seed
+php artisan migrate
 ```
 
 ---
